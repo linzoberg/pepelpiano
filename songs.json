@@ -1,0 +1,14 @@
+[
+  {
+    "id": "song_example_1",
+    "name": "1. Я вас любила, любовь моя",
+    "sequence": "qjhehqerwwqwrejwqdqjhehqewrredwqjhh",
+    "defaultInterval": 500
+  },
+  {
+    "id": "song_example_2",
+    "name": "2. Пример: гамма до мажора",
+    "sequence": "qwertyu asdfghj",
+    "defaultInterval": 350
+  }
+]
