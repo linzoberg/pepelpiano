@@ -91,6 +91,21 @@ QPushButton#Danger:hover {
     background-color: rgba(220, 80, 80, 0.3);
 }
 
+/* ИЗМЕНЕНИЕ: стиль переключателя "Скрытая задержка".
+   В выключенном состоянии кнопка выглядит как обычная (наследует QPushButton).
+   Во включённом состоянии (:checked) подсвечивается мягким зелёным —
+   чтобы было видно, что режим "игры как человек" активен, но без лишних деталей в интерфейсе. */
+QPushButton#Toggle:checked {
+    background-color: rgba(120, 220, 140, 0.20);
+    border: 1px solid rgba(120, 220, 140, 0.55);
+    color: #bdf5c8;
+    font-weight: 600;
+}
+
+QPushButton#Toggle:checked:hover {
+    background-color: rgba(120, 220, 140, 0.30);
+}
+
 QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QTableWidget {
     background-color: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.12);

@@ -52,6 +52,10 @@ class MainWindow(QMainWindow):
         self.player_thread: PlayerThread | None = None
         self.key_labels: dict[str, QLabel] = {}
 
+        # ИЗМЕНЕНИЕ: состояние переключателя "Скрытая задержка".
+        # По умолчанию выключено (программа играет строго по заданным интервалам).
+        self.stealth_delay_enabled: bool = False
+
         self._build_ui()
         self._refresh_song_list()
         if self.songs:
@@ -78,6 +82,21 @@ class MainWindow(QMainWindow):
         title_box.addWidget(subtitle)
         header.addLayout(title_box)
         header.addStretch(1)
+
+        # ИЗМЕНЕНИЕ: кнопка-переключатель "Скрытая задержка" слева от "Импорт из файла".
+        # Это чекнутая (checkable) кнопка: нажата = включено, не нажата = выключено.
+        # Сама кнопка и её состояние не раскрывают пользователю никаких цифр —
+        # это просто тумблер "играть монотонно / играть как человек".
+        self.stealth_btn = QPushButton("Скрытая задержка")
+        self.stealth_btn.setObjectName("Toggle")
+        self.stealth_btn.setCheckable(True)
+        self.stealth_btn.setChecked(False)
+        self.stealth_btn.setToolTip(
+            "Добавляет незаметную случайную задержку (1–20 мс) к каждой клавише,\n"
+            "включая пробел-паузу, чтобы игра звучала менее роботизированно."
+        )
+        self.stealth_btn.toggled.connect(self._on_stealth_toggle)
+        header.addWidget(self.stealth_btn)
 
         import_btn = QPushButton("Импорт из файла")
         import_btn.clicked.connect(self._import_songs)
@@ -316,6 +335,12 @@ class MainWindow(QMainWindow):
         self._persist()
         self._populate_intervals_table()
 
+    # ИЗМЕНЕНИЕ: обработчик переключателя "Скрытая задержка".
+    # Ничего не пишет в songs.json, не трогает таблицу интервалов и статус —
+    # просто запоминает состояние тумблера для следующего запуска воспроизведения.
+    def _on_stealth_toggle(self, checked: bool):
+        self.stealth_delay_enabled = checked
+
     # --------------------------------------------------------- list actions
 
     def _add_song(self):
@@ -399,7 +424,13 @@ class MainWindow(QMainWindow):
         self.progress_bar.setMaximum(len(self.current_song.sequence))
         self.progress_bar.setValue(0)
 
-        self.player_thread = PlayerThread(self.current_song, self.countdown_spin.value())
+        # ИЗМЕНЕНИЕ: передаём в поток воспроизведения текущее состояние
+        # тумблера "Скрытая задержка". Остальная логика не изменена.
+        self.player_thread = PlayerThread(
+            self.current_song,
+            self.countdown_spin.value(),
+            stealth_delay=self.stealth_delay_enabled,
+        )
         self.player_thread.progress.connect(self._on_playback_progress)
         self.player_thread.finished_playing.connect(self._on_playback_finished)
         self.player_thread.error.connect(self._on_playback_error)

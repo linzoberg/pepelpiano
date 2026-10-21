@@ -5,7 +5,7 @@
     pip install pyinstaller
     python build_exe.py
 
-Результат: download/GenshinPiano.exe
+Результат: dist/GenshinPiano.exe
 """
 import shutil
 import subprocess
@@ -17,7 +17,7 @@ APP_NAME = "GenshinPiano"
 
 
 def clean():
-    for folder in ("build", "download", "__pycache__"):
+    for folder in ("build", "dist", "__pycache__"):
         path = ROOT / folder
         if path.exists():
             shutil.rmtree(path, ignore_errors=True)
@@ -40,22 +40,14 @@ def build():
     subprocess.run(cmd, cwd=str(ROOT), check=True)
 
 
-def copy_songs_json():
-    src = ROOT / "songs.json"
-    download = ROOT / "download"
-    if src.exists() and download.exists():
-        shutil.copy(src, download / "songs.json")
-
-
 def main():
     print("Очистка старых артефактов сборки...")
     clean()
     print("Сборка exe через PyInstaller...")
     build()
-    copy_songs_json()
-    exe_path = ROOT / "download" / f"{APP_NAME}.exe"
+    exe_path = ROOT / "dist" / f"{APP_NAME}.exe"
     print(f"\nГотово! Файл: {exe_path}")
-    print("Рядом в папке download/ лежит songs.json с вашими мелодиями.")
+    print("Рядом в папке dist/ лежит songs.json с вашими мелодиями.")
 
 
 if __name__ == "__main__":
