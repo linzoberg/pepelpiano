@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import random
 import time
 
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -19,16 +20,32 @@ except ImportError:  # pragma: no cover
 
 SLEEP_CHUNK = 0.02  # c, шаг проверки флага остановки
 
+# --- "Скрытая задержка" ---------------------------------------------------
+# Диапазон случайного микро-пинга (в миллисекундах), который незаметно
+# добавляется к интервалу КАЖДОЙ клавиши (включая пробел-паузу), чтобы
+# игра выглядела как нажатия живого человека, а не монотонная автоматика.
+# Значение генерируется заново для каждой ноты при каждом проигрывании,
+# не сохраняется и не отображается в интерфейсе/таблице интервалов.
+HIDDEN_DELAY_MIN_MS = 1
+HIDDEN_DELAY_MAX_MS = 20
+
 
 class PlayerThread(QThread):
     progress = pyqtSignal(int, str)  # индекс ноты, символ
     finished_playing = pyqtSignal()
     error = pyqtSignal(str)
 
-    def __init__(self, song: Song, countdown_sec: int = 3, parent=None):
+    def __init__(
+        self,
+        song: Song,
+        countdown_sec: int = 3,
+        hidden_delay: bool = False,
+        parent=None,
+    ):
         super().__init__(parent)
         self.song = song
         self.countdown_sec = countdown_sec
+        self.hidden_delay = hidden_delay
         self._stop_flag = False
 
     def stop(self):
@@ -38,6 +55,15 @@ class PlayerThread(QThread):
         end = time.monotonic() + seconds
         while not self._stop_flag and time.monotonic() < end:
             time.sleep(min(SLEEP_CHUNK, max(0.0, end - time.monotonic())))
+
+    def _note_delay_seconds(self, idx: int) -> float:
+        """Интервал после ноты в секундах, с учётом скрытой задержки (если включена)."""
+        delay_ms = self.song.get_interval(idx)
+        if self.hidden_delay:
+            # Свой случайный микро-пинг для КАЖДОЙ клавиши (и паузы) при каждом
+            # проигрывании — не трогает значения song.get_interval/UI.
+            delay_ms += random.uniform(HIDDEN_DELAY_MIN_MS, HIDDEN_DELAY_MAX_MS)
+        return delay_ms / 1000.0
 
     def run(self):
         if keyboard is None:
@@ -64,7 +90,6 @@ class PlayerThread(QThread):
                     self.error.emit(f"Не удалось нажать клавишу '{ch}': {exc}")
                     break
             self.progress.emit(idx, ch)
-            delay_ms = self.song.get_interval(idx)
-            self._sleep_interruptible(delay_ms / 1000.0)
+            self._sleep_interruptible(self._note_delay_seconds(idx))
 
         self.finished_playing.emit()
