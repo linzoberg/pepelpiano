@@ -79,23 +79,6 @@ class MainWindow(QMainWindow):
         header.addLayout(title_box)
         header.addStretch(1)
 
-        # "Скрытая задержка" — переключатель-кнопка слева от "Импорт из файла".
-        # Когда включён, во время проигрывания к каждой клавише (и паузе)
-        # незаметно для пользователя добавляется свой случайный пинг 1-20 мс,
-        # чтобы игра не выглядела монотонно-роботизированной. Никак не меняет
-        # отображаемые интервалы и индивидуальные задержки в таблице ниже.
-        self.hidden_delay_btn = QPushButton("Скрытая задержка")
-        self.hidden_delay_btn.setObjectName("HiddenDelay")
-        self.hidden_delay_btn.setCheckable(True)
-        self.hidden_delay_btn.setToolTip(
-            "Во время игры добавляет к каждой клавише (включая паузы)\n"
-            "случайный пинг 1–20 мс — разный при каждом проигрывании.\n"
-            "Имитирует живую, не роботизированную игру.\n"
-            "Не влияет на интерфейс и на заданные вручную интервалы."
-        )
-        self.hidden_delay_btn.toggled.connect(self._on_hidden_delay_toggled)
-        header.addWidget(self.hidden_delay_btn)
-
         import_btn = QPushButton("Импорт из файла")
         import_btn.clicked.connect(self._import_songs)
         export_btn = QPushButton("Экспорт всех")
@@ -333,22 +316,6 @@ class MainWindow(QMainWindow):
         self._persist()
         self._populate_intervals_table()
 
-    def _on_hidden_delay_toggled(self, checked: bool):
-        """Переключатель скрытой задержки (1-20 мс) — только для таймингов плеера.
-
-        Ничего не пишет в songs.json, не трогает song.intervals и таблицу
-        индивидуальных интервалов — это полностью отдельный "невидимый" слой,
-        который применяется только в core/player.py в момент проигрывания.
-        """
-        if checked:
-            self.status_label.setText(
-                "Скрытая задержка включена: к каждой клавише добавляется случайный пинг 1–20 мс."
-            )
-        else:
-            self.status_label.setText(
-                "Скрытая задержка выключена: клавиши играются с точным заданным интервалом."
-            )
-
     # --------------------------------------------------------- list actions
 
     def _add_song(self):
@@ -432,11 +399,7 @@ class MainWindow(QMainWindow):
         self.progress_bar.setMaximum(len(self.current_song.sequence))
         self.progress_bar.setValue(0)
 
-        self.player_thread = PlayerThread(
-            self.current_song,
-            self.countdown_spin.value(),
-            hidden_delay=self.hidden_delay_btn.isChecked(),
-        )
+        self.player_thread = PlayerThread(self.current_song, self.countdown_spin.value())
         self.player_thread.progress.connect(self._on_playback_progress)
         self.player_thread.finished_playing.connect(self._on_playback_finished)
         self.player_thread.error.connect(self._on_playback_error)

@@ -91,26 +91,6 @@ QPushButton#Danger:hover {
     background-color: rgba(220, 80, 80, 0.3);
 }
 
-QPushButton#HiddenDelay {
-    background-color: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-QPushButton#HiddenDelay:hover {
-    background-color: rgba(255, 255, 255, 0.12);
-}
-
-QPushButton#HiddenDelay:checked {
-    background-color: rgba(124, 196, 244, 0.22);
-    border: 1px solid rgba(124, 196, 244, 0.6);
-    color: #bfe4ff;
-    font-weight: 700;
-}
-
-QPushButton#HiddenDelay:checked:hover {
-    background-color: rgba(124, 196, 244, 0.32);
-}
-
 QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QTableWidget {
     background-color: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.12);
