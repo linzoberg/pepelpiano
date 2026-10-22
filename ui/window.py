@@ -172,7 +172,9 @@ class MainWindow(QMainWindow):
             self.key_labels[k] = lbl
         for col, k in enumerate(ROW_2):
             lbl = self._make_key_label(k)
-            grid.addWidget(lbl, 1, col + 1)
+            # ИЗМЕНЕНИЕ: убрали сдвиг "+ 1" по столбцу, чтобы вторая строка клавиш
+            # (ASDFGHJ) была расположена строго под первой строкой (QWERTYU), а не со сдвигом на одну клавишу вправо.
+            grid.addWidget(lbl, 1, col)
             self.key_labels[k] = lbl
         kb_layout.addLayout(grid)
         right.addWidget(keyboard_card)
