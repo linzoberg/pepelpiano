@@ -92,7 +92,7 @@ class MainWindow(QMainWindow):
         self.stealth_btn.setCheckable(True)
         self.stealth_btn.setChecked(False)
         self.stealth_btn.setToolTip(
-            "Добавляет незаметную случайную задержку (1–20 мс) к каждой клавише,\n"
+            "Добавляет незаметную случайную задержку (1–30 мс) к каждой клавише,\n"
             "включая пробел-паузу, чтобы игра звучала менее роботизированно."
         )
         self.stealth_btn.toggled.connect(self._on_stealth_toggle)
