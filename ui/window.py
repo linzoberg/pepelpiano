@@ -44,7 +44,9 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Genshin Piano")
-        self.resize(980, 620)
+        # ИЗМЕНЕНИЕ: высота окна при запуске увеличена на 140 px (с 620 до 760),
+        # чтобы снизу было видно больше строк таблицы индивидуальных интервалов.
+        self.resize(980, 760)
         self.setStyleSheet(STYLESHEET)
 
         self.songs: list[Song] = load_songs()
@@ -96,6 +98,9 @@ class MainWindow(QMainWindow):
             "включая пробел-паузу, чтобы игра звучала менее роботизированно."
         )
         self.stealth_btn.toggled.connect(self._on_stealth_toggle)
+        # ИЗМЕНЕНИЕ: ширина кнопки "Скрытая задержка" увеличена на 25%.
+        stealth_width = int(self.stealth_btn.sizeHint().width() * 1.25)
+        self.stealth_btn.setMinimumWidth(stealth_width)
         header.addWidget(self.stealth_btn)
 
         import_btn = QPushButton("Импорт из файла")
